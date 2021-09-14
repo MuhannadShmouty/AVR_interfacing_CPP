@@ -5,8 +5,8 @@
  *      Author: Muhannad Shmouty
  */
 
-#ifndef HAL_01_CLCD_CLCD_CONFIG_HPP_
-#define HAL_01_CLCD_CLCD_CONFIG_HPP_
+#ifndef HAL_01_LCD_LCD_CONFIG_HPP_
+#define HAL_01_LCD_LCD_CONFIG_HPP_
 
 
 /*
@@ -76,4 +76,4 @@ static u8 LOC_u8StaticArray[] = {
  */
 #define CLCD_u8_INTERFACE_DATA_LENGTH 		CLCD_u8_8_DATA_LENGTH
 
-#endif /* HAL_01_CLCD_CLCD_CONFIG_HPP_ */
+#endif /* HAL_01_LCD_LCD_CONFIG_HPP_ */

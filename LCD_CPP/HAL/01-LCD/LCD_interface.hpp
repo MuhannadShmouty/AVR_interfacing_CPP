@@ -1,12 +1,12 @@
 /*
- * CLCD_interface.h
+ * LCD_interface.h
  *
  *  Created on: Aug 30, 2021
  *      Author: Muhannad Shmouty
  */
 
-#ifndef HAL_01_CLCD_CLCD_INTERFACE_HPP_
-#define HAL_01_CLCD_CLCD_INTERFACE_HPP_
+#ifndef HAL_01_LCD_LCD_INTERFACE_HPP_
+#define HAL_01_LCD_LCD_INTERFACE_HPP_
 // Rows
 #define CLCD_u8_ROW_00 0
 #define CLCD_u8_ROW_01 1
@@ -54,7 +54,11 @@ class LCD{
 		void setCursor(u8 Copy_u8Row, u8 Copy_u8Coloumn);
 		void clear(void);
 		void sendExtraChar(void);
+		void writeFourBit(u8 Copy_u8_Data);
+		void sendByte(u8 Copy_u8_Data);
+		void showCursor(void);
+		void hideCursor(void);
 };
 
 
-#endif /* HAL_01_CLCD_CLCD_INTERFACE_HPP_ */
+#endif /* HAL_01_LCD_LCD_INTERFACE_HPP_ */

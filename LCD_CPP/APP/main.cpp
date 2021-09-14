@@ -12,7 +12,8 @@
 #include "../MCAL/01-DIO/DIO_INTERFACE.hpp"
 
 #include <util/delay.h>
-#include "../HAL/01-CLCD/CLCD_interface.hpp"
+
+#include "../HAL/01-LCD/LCD_interface.hpp"
 
 
 
@@ -24,8 +25,10 @@ int main(void)
 	my_lcd.begin();
 	while (1){
 		my_lcd.print("Hello, world!");
+		my_lcd.showCursor();
 		_delay_ms(500);
 		my_lcd.clear();
+		my_lcd.hideCursor();
 		_delay_ms(500);
 	}
 

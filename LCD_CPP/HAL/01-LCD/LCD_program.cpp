@@ -1,5 +1,5 @@
 /*
- * CLCD_program.c
+ * LCD_program.cpp
  *
  *  Created on: Aug 30, 2021
  *      Author: Muhannad Shmouty
@@ -11,9 +11,9 @@
 
 #include <util/delay.h>
 
-#include "../01-CLCD/CLCD_config.hpp"
-#include "../01-CLCD/CLCD_interface.hpp"
-#include "../01-CLCD/CLCD_private.hpp"
+#include "../01-LCD/LCD_config.hpp"
+#include "../01-LCD/LCD_interface.hpp"
+#include "../01-LCD/LCD_private.hpp"
 
 LCD::LCD(u8 _u8_LCD_D0, u8 _u8_LCD_D1, u8 _u8_LCD_D2, u8 _u8_LCD_D3, u8 _u8_LCD_D4,
 				u8 _u8_LCD_D5, u8 _u8_LCD_D6, u8 _u8_LCD_D7, u8 _u8_LCD_RS ,u8 _u8_LCD_EN){
@@ -29,7 +29,6 @@ LCD::LCD(u8 _u8_LCD_D0, u8 _u8_LCD_D1, u8 _u8_LCD_D2, u8 _u8_LCD_D3, u8 _u8_LCD_
 	this->DATA_PORT[7] = _u8_LCD_D7;
 	this->u8_LCD_EN = _u8_LCD_EN;
 	this->u8_LCD_RS = _u8_LCD_RS;
-
 }
 
 LCD::LCD(u8 _u8_LCD_D4, u8 _u8_LCD_D5, u8 _u8_LCD_D6, u8 _u8_LCD_D7, u8 _u8_LCD_RS ,u8 _u8_LCD_EN)
@@ -44,6 +43,15 @@ LCD::LCD(u8 _u8_LCD_D4, u8 _u8_LCD_D5, u8 _u8_LCD_D6, u8 _u8_LCD_D7, u8 _u8_LCD_
 }
 
 void LCD::begin(void) {
+	/*
+	 * Configuring the 4-bit and 8-bit modes initialization
+	 * Check DataSheet Page 14
+	 */
+
+	for (int PIN = 0; PIN < DATA_PINS; PIN++)
+	{
+		DIO_voidSetPinDirection(DATA_PORT[PIN], DIO_u8_OUTPUT);
+	}
 
 	// Set RS and EN pins to OUTPUT
 	DIO_voidSetPinDirection(u8_LCD_RS, DIO_u8_OUTPUT);
@@ -53,34 +61,33 @@ void LCD::begin(void) {
 
 	if (four_bit_mode)
 	{
-		// Set data pins to OUTPUT
-		for (int PIN = 4; PIN < DATA_PINS; PIN++)
-		{
-			DIO_voidSetPinDirection(DATA_PORT[PIN], DIO_u8_OUTPUT);
-		}
-		// Send the function set
 		DIO_voidSetPinValue(u8_LCD_RS, DIO_u8_LOW);
-		DIO_voidSetPinValue(u8_LCD_EN, DIO_u8_LOW);
 
-		this->write(CLCD_u8_8_BIT_MODE << 4);
+		// Supposing that the LCD is in 4-bit Mode
+		// Set the LCD to 8-bit Mode
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
 		_delay_ms(5);
 
-		this->write(CLCD_u8_8_BIT_MODE << 4);
+		// Sent again to handle if the LCD is waiting for the second half
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
 		_delay_ms(5);
 
-		this->write(CLCD_u8_8_BIT_MODE << 4);
+		// Once more!
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
 		_delay_ms(5);
 
-		this->write(CLCD_u8_4_BIT_MODE);
-		_delay_ms(1);
+		// Send the 4-bit function set
+		this->sendByte(CLCD_u8_4_BIT_MODE_1);
+		_delay_ms(5);
+
+		this->sendByte(CLCD_u8_4_BIT_MODE_1);
+		_delay_ms(5);
+
+		this->sendByte(CLCD_u8_4_BIT_MODE_2);
+		_delay_ms(5);
 	}
 	else
 	{
-		// Set data pins to OUTPUT
-		for (int PIN = 0; PIN < DATA_PINS; PIN++)
-		{
-			DIO_voidSetPinDirection(DATA_PORT[PIN], DIO_u8_OUTPUT);
-		}
 		// Function Set
 		this->sendCommand(CLCD_u8_8_BIT_MODE);
 		// Wait more than 39 microseconds
@@ -99,38 +106,56 @@ void LCD::begin(void) {
 
 	// Entry Mode Set
 	this->sendCommand(CLCD_u8_ENTRY_MODE);
+	// Wait more than 39 microseconds
+	_delay_ms(1);
 }
 
 
 void LCD::write(u8 Copy_u8_Data) {
-	// eight bit mode
+	// RegisterSelect - > Data
+	DIO_voidSetPinValue(u8_LCD_RS, DIO_u8_HIGH);
+
+	if (four_bit_mode){
+		// Send the Second 4 bits of the data
+		this->writeFourBit(Copy_u8_Data);
+	}
+	else {
+		// 8-bit mode
+		this->sendByte(Copy_u8_Data);
+	}
+}
+
+void LCD::writeFourBit(u8 Copy_u8_Data){
+	this->sendByte(Copy_u8_Data >> 4);
+	this->sendByte(Copy_u8_Data & 0x0F);
+}
+
+void LCD::sendByte(u8 Copy_u8_Data)
+{
 	for (int PIN = 0; PIN < DATA_PINS; PIN++)
 	{
 		DIO_voidSetPinValue(DATA_PORT[PIN], get_bit(Copy_u8_Data, PIN));
 	}
-	DIO_voidSetPinValue(u8_LCD_RS, DIO_u8_HIGH);
 
 	// Applying Falling Edge on EN pin
 	DIO_voidSetPinValue(u8_LCD_EN, DIO_u8_HIGH);
 	_delay_ms(1);
 	DIO_voidSetPinValue(u8_LCD_EN, DIO_u8_LOW);
 	_delay_ms(1);
-
 }
 
 void LCD::sendCommand(u8 Copy_u8_Command) {
-	for (int PIN = 0; PIN < DATA_PINS; PIN++)
-	{
-		DIO_voidSetPinValue(DATA_PORT[PIN], get_bit(Copy_u8_Command, PIN));
-	}
+	// RegisterSelect -> Command
 	DIO_voidSetPinValue(u8_LCD_RS, DIO_u8_LOW);
 
-	// Applying Falling Edge on EN pin
-	DIO_voidSetPinValue(u8_LCD_EN, DIO_u8_HIGH);
-	_delay_ms(1);
-	DIO_voidSetPinValue(u8_LCD_EN, DIO_u8_LOW);
-	_delay_ms(1);
 
+	if (four_bit_mode){
+		// Send Command on two steps
+		this->writeFourBit(Copy_u8_Command);
+	}
+	else{
+		this->sendByte(Copy_u8_Command);
+	}
 }
 
 void LCD::print(s8 * Copy_u8_Ptr_String) {
@@ -190,3 +215,10 @@ void LCD::clear(void)
 }
 
 
+void LCD::showCursor(void){
+	this->sendCommand(CLCD_u8_DISPLAY_CONTROL | (1<<CLCD_u8_Cursor_bit));
+}
+
+void LCD::hideCursor(void){
+	this->sendCommand(CLCD_u8_DISPLAY_CONTROL & (~(1<<CLCD_u8_Cursor_bit)));
+}
