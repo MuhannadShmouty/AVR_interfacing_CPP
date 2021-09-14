@@ -19,6 +19,7 @@ LCD::LCD(u8 _u8_LCD_D0, u8 _u8_LCD_D1, u8 _u8_LCD_D2, u8 _u8_LCD_D3, u8 _u8_LCD_
 				u8 _u8_LCD_D5, u8 _u8_LCD_D6, u8 _u8_LCD_D7, u8 _u8_LCD_RS ,u8 _u8_LCD_EN){
 	// 8 bit mode
 	this->four_bit_mode = false;
+	this->data_pins = 8;
 	this->DATA_PORT[0] = _u8_LCD_D0;
 	this->DATA_PORT[1] = _u8_LCD_D1;
 	this->DATA_PORT[2] = _u8_LCD_D2;
@@ -34,10 +35,11 @@ LCD::LCD(u8 _u8_LCD_D0, u8 _u8_LCD_D1, u8 _u8_LCD_D2, u8 _u8_LCD_D3, u8 _u8_LCD_
 LCD::LCD(u8 _u8_LCD_D4, u8 _u8_LCD_D5, u8 _u8_LCD_D6, u8 _u8_LCD_D7, u8 _u8_LCD_RS ,u8 _u8_LCD_EN)
 {
 	this->four_bit_mode = true;
-	this->DATA_PORT[4] = _u8_LCD_D4;
-	this->DATA_PORT[5] = _u8_LCD_D5;
-	this->DATA_PORT[6] = _u8_LCD_D6;
-	this->DATA_PORT[7] = _u8_LCD_D7;
+	this->data_pins = 4;
+	this->DATA_PORT[0] = _u8_LCD_D4;
+	this->DATA_PORT[1] = _u8_LCD_D5;
+	this->DATA_PORT[2] = _u8_LCD_D6;
+	this->DATA_PORT[3] = _u8_LCD_D7;
 	this->u8_LCD_EN = _u8_LCD_EN;
 	this->u8_LCD_RS = _u8_LCD_RS;
 }
@@ -48,7 +50,7 @@ void LCD::begin(void) {
 	 * Check DataSheet Page 14
 	 */
 
-	for (int PIN = 0; PIN < DATA_PINS; PIN++)
+	for (int PIN = 0; PIN < data_pins; PIN++)
 	{
 		DIO_voidSetPinDirection(DATA_PORT[PIN], DIO_u8_OUTPUT);
 	}
@@ -65,15 +67,15 @@ void LCD::begin(void) {
 
 		// Supposing that the LCD is in 4-bit Mode
 		// Set the LCD to 8-bit Mode
-		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE));
 		_delay_ms(5);
 
 		// Sent again to handle if the LCD is waiting for the second half
-		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE));
 		_delay_ms(5);
 
 		// Once more!
-		this->sendByte((u8)(CLCD_u8_8_BIT_MODE << 4));
+		this->sendByte((u8)(CLCD_u8_8_BIT_MODE));
 		_delay_ms(5);
 
 		// Send the 4-bit function set
@@ -132,7 +134,7 @@ void LCD::writeFourBit(u8 Copy_u8_Data){
 
 void LCD::sendByte(u8 Copy_u8_Data)
 {
-	for (int PIN = 0; PIN < DATA_PINS; PIN++)
+	for (int PIN = 0; PIN < data_pins; PIN++)
 	{
 		DIO_voidSetPinValue(DATA_PORT[PIN], get_bit(Copy_u8_Data, PIN));
 	}
@@ -208,6 +210,7 @@ void LCD::sendExtraChar(void)
 	}
 	this->sendCommand(CLCD_u8DDRAM_OFFSET);
 }
+
 
 void LCD::clear(void)
 {

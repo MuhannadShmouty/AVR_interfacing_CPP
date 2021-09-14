@@ -17,8 +17,7 @@
 
 
 
-LCD my_lcd (DIO_u8_PIN_A0, DIO_u8_PIN_A1, DIO_u8_PIN_A2, DIO_u8_PIN_A3, DIO_u8_PIN_A4,
-		DIO_u8_PIN_A5, DIO_u8_PIN_A6, DIO_u8_PIN_A7, DIO_u8_PIN_B0, DIO_u8_PIN_B1);
+LCD my_lcd (DIO_u8_PIN_A4, DIO_u8_PIN_A5, DIO_u8_PIN_A6, DIO_u8_PIN_A7, DIO_u8_PIN_B0, DIO_u8_PIN_B1);
 
 int main(void)
 {

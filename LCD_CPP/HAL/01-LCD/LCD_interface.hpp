@@ -35,6 +35,7 @@
 class LCD{
 	private:
 		bool four_bit_mode;
+		u8 data_pins;
 		u8 DATA_PORT[DATA_PINS];
 		u8 u8_LCD_RS;
 		u8 u8_LCD_EN;
