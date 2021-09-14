@@ -28,7 +28,6 @@ int main(void)
 		my_lcd.showCursor();
 		_delay_ms(500);
 		my_lcd.clear();
-		my_lcd.hideCursor();
 		_delay_ms(500);
 	}
 

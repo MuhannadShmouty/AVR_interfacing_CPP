@@ -58,6 +58,7 @@ class LCD{
 		void sendByte(u8 Copy_u8_Data);
 		void showCursor(void);
 		void hideCursor(void);
+		void blinkCursor(bool active);
 };
 
 

@@ -222,3 +222,13 @@ void LCD::showCursor(void){
 void LCD::hideCursor(void){
 	this->sendCommand(CLCD_u8_DISPLAY_CONTROL & (~(1<<CLCD_u8_Cursor_bit)));
 }
+
+void LCD::blinkCursor(bool active){
+	if (active){
+		this->sendCommand(CLCD_u8_DISPLAY_CONTROL | (1<<CLCD_u8_Blink_bit));
+	}
+	else
+	{
+		this->sendCommand(CLCD_u8_DISPLAY_CONTROL & (~(1<<CLCD_u8_Blink_bit)));
+	}
+}
